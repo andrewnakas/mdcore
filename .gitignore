@@ -1,0 +1,19 @@
+# ROMs and anything derived from them - never commit
+*.md
+*.bin
+*.gen
+*.smd
+*.ppm
+*.png
+*.state
+baserom*
+__pycache__/
+# test vectors are fetched, not vendored
+tests/vectors/
+# docs share the .md extension with ROMs; re-include them explicitly
+!README.md
+tests/oracle/gpgx/
+tests/oracle/gpgx-hook/
+tests/probes/build/
+tests/probes/ym/build/
+dist/

@@ -1,0 +1,33 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang and lld
+        run: sudo apt-get update && sudo apt-get install -y clang lld
+
+      - name: Build the wasm core
+        run: ./build.sh
+
+      - name: Build native test drivers (warnings are errors)
+        run: |
+          cc -O2 -std=c99 -Wall -Wextra -Werror -c src/md.c src/m68k.c src/z80.c src/vdp.c src/sound.c
+          cc -O2 -Wall -o headless tests/headless.c src/md.c src/m68k.c src/z80.c src/vdp.c src/sound.c
+
+      - name: 68000 single-step test vectors
+        run: |
+          git clone -q --depth 1 https://github.com/SingleStepTests/m68000.git vectors68k
+          cc -O2 -o m68k_sst tests/m68k_sst.c src/m68k.c
+          ./m68k_sst vectors68k/v1/*.json.bin | tail -1
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mdcore-web
+          path: web/
